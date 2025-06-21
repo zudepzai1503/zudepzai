@@ -790,15 +790,15 @@
     
     // --- INITIALIZATION ---
     async function main() {
-    const firebaseConfig = {
-  apiKey: "AIzaSyAEfBr44RxjRjDqO3vxkUWCUnXw0rCJBpI",
-  authDomain: "quanlimaylanh.firebaseapp.com",
-  projectId: "quanlimaylanh",
-  storageBucket: "quanlimaylanh.firebasestorage.app",
-  messagingSenderId: "215329823570",
-  appId: "1:215329823570:web:7a111cb1022168edef788b",
-  measurementId: "G-3MXS0GJYNQ"
-};
+        const firebaseConfig = {
+          apiKey: "AIzaSyAEfBr44RxjRjDqO3vxkUWCUnXw0rCJBpI",
+          authDomain: "quanlimaylanh.firebaseapp.com",
+          projectId: "quanlimaylanh",
+          storageBucket: "quanlimaylanh.firebasestorage.app",
+          messagingSenderId: "215329823570",
+          appId: "1:215329823570:web:7a111cb1022168edef788b",
+          measurementId: "G-3MXS0GJYNQ"
+        };
         const app = initializeApp(firebaseConfig);
         db = getFirestore(app);
         auth = getAuth(app);
