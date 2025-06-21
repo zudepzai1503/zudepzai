@@ -14,16 +14,15 @@
 
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
-        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); padding: 24px; margin-bottom: 24px; }
-        .table-header { background-color: #e2e8f0; }
-        .table-header th { padding: 12px 16px; font-weight: 600; color: #2d3748; }
-        .table-row td { padding: 12px 16px; border-bottom: 1px solid #e2e8f0; }
+        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); padding: 1rem; sm:padding: 1.5rem; margin-bottom: 1.5rem; }
+        .table-header th { padding: 0.75rem 0.5rem; sm:padding: 0.75rem 1rem; font-weight: 600; color: #2d3748; }
+        .table-row td { padding: 0.75rem 0.5rem; sm:padding: 0.75rem 1rem; border-bottom: 1px solid #e2e8f0; }
         .btn { transition: all 0.2s ease-in-out; }
         .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 50; }
-        .modal-content { background-color: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; }
-        .month-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-        .month-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s ease-in-out; }
+        .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 50; padding: 1rem; }
+        .modal-content { background-color: white; padding: 1.5rem; border-radius: 12px; width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; }
+        .month-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .month-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; cursor: pointer; transition: all 0.2s ease-in-out; }
         .month-card:hover { border-color: #a5b4fc; background-color: #f7fafc; transform: translateY(-2px); }
         .flatpickr-calendar { font-family: 'Inter', sans-serif; border-radius: 8px; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
         .flatpickr-month { padding-bottom: 8px; }
@@ -31,23 +30,38 @@
         .detail-row { cursor: pointer; }
         .detail-row:hover { background-color: #f9fafb; }
         .log-container { max-height: 320px; overflow-y: auto; }
-        .stat-card { text-align: center; padding: 20px; border-radius: 12px; }
-        .stat-card .icon { font-size: 2.5rem; margin-bottom: 1rem; }
-        .stat-card .title { font-size: 1rem; color: #4a5568; margin-bottom: 0.5rem; }
-        .stat-card .value { font-size: 2rem; font-weight: 700; }
+        .stat-card { text-align: center; padding: 1rem; border-radius: 12px; }
+        .stat-card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .stat-card .title { font-size: 0.875rem; color: #4a5568; margin-bottom: 0.25rem; }
+        .stat-card .value { font-size: 1.5rem; font-weight: 700; }
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 100;
+        }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-3 sm:p-4 md:p-6">
+
+    <div id="loading-overlay">
+        <div class="text-center">
+            <i class="fas fa-spinner fa-spin text-4xl text-indigo-600"></i>
+            <p class="mt-4 text-gray-700">Đang kết nối tới cơ sở dữ liệu...</p>
+        </div>
+    </div>
+
 
     <div class="max-w-7xl mx-auto">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Hệ Thống Quản Lý Bảo Trì Máy Lạnh</h1>
+        <header class="text-center mb-6">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">Quản Lý Bảo Trì</h1>
+            <p class="text-gray-600 mt-2 text-sm sm:text-base">Theo dõi và quản lý lịch bảo trì cho khách sạn.</p>
         </header>
-
+        
         <!-- Form nhập liệu -->
         <div class="card" id="form-card">
-             <h2 class="text-2xl font-bold text-gray-700 mb-6">Thêm Lượt Bảo Trì Mới</h2>
-            <form id="maintenance-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+             <h2 class="text-xl font-bold text-gray-700 mb-6">Thêm Lượt Bảo Trì Mới</h2>
+            <form id="maintenance-form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label for="room-number" class="block text-sm font-medium text-gray-700 mb-1">Chọn Phòng</label>
                     <select id="room-number" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
@@ -74,13 +88,13 @@
                     <label for="cost" class="block text-sm font-medium text-gray-700 mb-1">Chi Phí (VNĐ)</label>
                     <input type="text" inputmode="numeric" id="cost" placeholder="Ví dụ: 300000" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" autocomplete="off">
                 </div>
-                <div class="md:col-span-2">
+                <div class="sm:col-span-2">
                     <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Ghi Chú</label>
                     <input type="text" id="notes" placeholder="Ví dụ: Thay gas, sửa quạt dàn nóng..." class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" autocomplete="off">
                 </div>
-                <div class="md:col-span-2 lg:col-span-3 flex justify-end">
-                    <button type="submit" class="btn bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        <i class="fas fa-plus mr-2"></i>Thêm vào
+                <div class="sm:col-span-2 flex justify-end gap-4">
+                    <button type="submit" class="btn bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-indigo-700">
+                        <i class="fas fa-plus mr-2"></i>Thêm vào sổ
                     </button>
                 </div>
             </form>
@@ -89,23 +103,21 @@
         <!-- Bảng lịch sử bảo trì -->
         <div class="card">
             <div class="flex flex-col md:flex-row justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold text-gray-700">Nhật Ký Bảo Trì</h2>
-                <div class="flex items-center gap-2 md:gap-4 mt-4 md:mt-0">
+                <h2 class="text-xl font-bold text-gray-700">Nhật Ký Bảo Trì</h2>
+                <div class="flex items-center gap-2 mt-4 md:mt-0">
                     <button id="prev-log-month-btn" class="p-2 rounded-full hover:bg-gray-200 transition" aria-label="Tháng trước"><i class="fas fa-chevron-left"></i></button>
-                    <span id="displayed-log-month" class="text-xl font-bold text-gray-700 w-24 text-center"></span>
+                    <span id="displayed-log-month" class="text-lg font-bold text-gray-700 w-24 text-center"></span>
                     <button id="next-log-month-btn" class="p-2 rounded-full hover:bg-gray-200 transition" aria-label="Tháng sau"><i class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
-            <div class="log-container">
+            <div class="log-container overflow-x-auto">
                 <table class="w-full text-sm text-left text-gray-500">
                     <thead class="text-xs text-gray-700 uppercase table-header sticky top-0">
                         <tr>
-                            <th scope="col" class="px-6 py-3">Phòng/Khu vực</th>
-                            <th scope="col" class="px-6 py-3">Ngày</th>
-                            <th scope="col" class="px-6 py-3">Hạng Mục</th>
-                            <th scope="col" class="px-6 py-3">Chi Phí</th>
-                            <th scope="col" class="px-6 py-3">Ghi Chú</th>
-                            <th scope="col" class="px-6 py-3">Thao Tác</th>
+                            <th scope="col" class="px-2 sm:px-4 py-3">Phòng</th>
+                            <th scope="col" class="px-2 sm:px-4 py-3">Ngày</th>
+                            <th scope="col" class="px-2 sm:px-4 py-3">Hạng Mục</th>
+                            <th scope="col" class="px-2 sm:px-4 py-3">Chi tiết</th>
                         </tr>
                     </thead>
                     <tbody id="maintenance-log"></tbody>
@@ -117,10 +129,10 @@
         <!-- Lịch Hoạt Động Theo Tháng -->
         <div class="card">
             <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-700">Lịch Hoạt Động Bảo Trì</h2>
-                <div class="flex items-center gap-2 md:gap-4 mt-4 md:mt-0">
+                <h2 class="text-xl font-bold text-gray-700">Lịch Hoạt Động</h2>
+                <div class="flex items-center gap-2 mt-4 md:mt-0">
                     <button id="prev-year-btn" class="p-2 rounded-full hover:bg-gray-200 transition" aria-label="Năm trước"><i class="fas fa-chevron-left"></i></button>
-                    <span id="displayed-year" class="text-xl font-bold text-gray-700 w-20 text-center"></span>
+                    <span id="displayed-year" class="text-lg font-bold text-gray-700 w-20 text-center"></span>
                     <button id="next-year-btn" class="p-2 rounded-full hover:bg-gray-200 transition" aria-label="Năm sau"><i class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
@@ -138,37 +150,23 @@
                        <i class="fas fa-calendar-alt mr-2"></i>Xuất Báo Cáo Tháng
                     </button>
                     <button id="export-data-btn" class="btn bg-blue-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700">
-                        <i class="fas fa-download mr-2"></i>Sao lưu Toàn Bộ
+                        <i class="fas fa-download mr-2"></i>Sao lưu Toàn Bộ (.json)
                     </button>
                     <button id="import-data-btn" class="btn bg-orange-500 text-white font-bold py-2 px-5 rounded-lg hover:bg-orange-600">
-                        <i class="fas fa-upload mr-2"></i>Phục hồi Dữ Liệu
+                        <i class="fas fa-upload mr-2"></i>Phục hồi Dữ Liệu (.json)
                     </button>
                 </div>
                 <input type="file" id="import-file-input" class="hidden" accept=".json, .txt">
             </div>
         </footer>
     </div>
-
-     <!-- Modal Xác nhận Nhập Dữ Liệu -->
-    <div id="import-confirm-modal" class="modal-backdrop hidden">
-        <div class="modal-content">
-            <h3 class="text-xl font-bold text-red-600 mb-4 flex items-center"><i class="fas fa-exclamation-triangle mr-3"></i>Cảnh báo!</h3>
-            <p class="text-gray-600 mb-2">Bạn có chắc chắn muốn nhập dữ liệu mới không? Hành động này sẽ <strong class="font-bold text-red-700">ghi đè toàn bộ dữ liệu hiện tại</strong> và không thể hoàn tác.</p>
-            <p class="text-gray-600 mb-6">Dữ liệu sẽ được nạp từ tệp: <strong id="import-filename" class="font-mono bg-gray-100 px-1 rounded"></strong></p>
-            <div class="flex justify-end gap-4">
-                <button id="cancel-import-btn" class="btn bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400">Hủy</button>
-                <button id="confirm-import-btn" class="btn bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700">Tôi hiểu, Xác nhận Nhập</button>
-            </div>
-        </div>
-    </div>
-
-
+    
+    <!-- Các Modal (Báo cáo, Chi tiết tháng, v.v...) -->
     <!-- Modal Báo Cáo & Thống Kê -->
     <div id="report-modal" class="modal-backdrop hidden">
         <div class="modal-content">
-            <h3 class="text-3xl font-bold text-gray-800 mb-8 text-center">Báo Cáo Toàn Bộ & Thống Kê</h3>
+            <h3 class="text-2xl font-bold text-gray-800 mb-8 text-center">Báo Cáo Toàn Bộ & Thống Kê</h3>
             <div class="space-y-8">
-                 <!-- Tổng quan chi phí -->
                 <div>
                     <h4 class="text-xl font-bold text-gray-700 mb-4">Tổng Quan Chi Phí</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -184,17 +182,15 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Thống kê theo phòng -->
                 <div>
                     <h4 class="text-xl font-bold text-gray-700 mb-4">Thống Kê Tần Suất Theo Phòng</h4>
-                    <div class="overflow-x-auto max-h-[40vh]">
+                    <div class="overflow-y-auto max-h-[40vh]">
                         <table class="w-full text-sm text-left text-gray-500">
                             <thead class="text-xs text-gray-700 uppercase table-header sticky top-0">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 rounded-l-lg">Phòng/Khu vực</th>
-                                    <th scope="col" class="px-6 py-3 text-center">Số Lần Vệ Sinh</th>
-                                    <th scope="col" class="px-6 py-3 text-center rounded-r-lg">Số Lần Sửa Chữa</th>
+                                    <th scope="col" class="px-4 py-3">Phòng/Khu vực</th>
+                                    <th scope="col" class="px-4 py-3 text-center">Vệ Sinh</th>
+                                    <th scope="col" class="px-4 py-3 text-center">Sửa Chữa</th>
                                 </tr>
                             </thead>
                             <tbody id="room-stats-body"></tbody>
@@ -259,7 +255,7 @@
 
     <!-- Modal Chi tiết & Chỉnh sửa Record -->
     <div id="record-modal" class="modal-backdrop hidden">
-        <div class="modal-content">
+        <div class="modal-content max-w-lg">
             <h3 class="text-2xl font-bold text-gray-800 mb-6">Chi Tiết Bảo Trì</h3>
             <form id="edit-form" class="space-y-4">
                  <div>
@@ -292,11 +288,32 @@
             </div>
         </div>
     </div>
+    
+     <!-- Modal Xác nhận Nhập Dữ Liệu -->
+    <div id="import-confirm-modal" class="modal-backdrop hidden">
+        <div class="modal-content max-w-lg">
+            <h3 class="text-xl font-bold text-red-600 mb-4 flex items-center"><i class="fas fa-exclamation-triangle mr-3"></i>Cảnh báo!</h3>
+            <p class="text-gray-600 mb-2">Bạn có chắc chắn muốn nhập dữ liệu mới không? Hành động này sẽ <strong class="font-bold text-red-700">ghi đè toàn bộ dữ liệu hiện tại</strong> và không thể hoàn tác.</p>
+            <p class="text-gray-600 mb-6">Dữ liệu sẽ được nạp từ tệp: <strong id="import-filename" class="font-mono bg-gray-100 px-1 rounded"></strong></p>
+            <div class="flex justify-end gap-4">
+                <button id="cancel-import-btn" class="btn bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400">Hủy</button>
+                <button id="confirm-import-btn" class="btn bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700">Tôi hiểu, Xác nhận Nhập</button>
+            </div>
+        </div>
+    </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
+
+<script type="module">
+    // Firebase Imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
     // DOM Elements
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const formCard = document.getElementById('form-card');
     const form = document.getElementById('maintenance-form');
+    
     const logBody = document.getElementById('maintenance-log');
     const noDataMessage = document.getElementById('no-data-message');
     const monthlyScheduleEl = document.getElementById('monthly-schedule');
@@ -344,12 +361,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmExportMonthBtn = document.getElementById('confirm-export-month-btn');
 
     // State
-    let maintenanceRecords = JSON.parse(localStorage.getItem('maintenanceRecords')) || [];
+    let maintenanceRecords = [];
     let displayedLogDate = new Date();
     let displayedScheduleYear = new Date().getFullYear();
     let activeRecordId = null;
     let editFlatpickrInstance = null;
     let dataToImport = null;
+    let db, auth, recordsCollection;
     const roomOptions = Array.from(document.getElementById('room-number').options).map(o => o.value);
     const serviceOptions = Array.from(document.getElementById('service-type').options).map(o => o.value);
 
@@ -365,7 +383,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isNaN(date.getTime())) return '';
         return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
     };
-    const saveToLocalStorage = () => localStorage.setItem('maintenanceRecords', JSON.stringify(maintenanceRecords));
     
     // --- RENDER FUNCTIONS ---
     const renderAll = () => {
@@ -393,12 +410,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = document.createElement('tr');
             row.className = 'bg-white border-b';
             row.innerHTML = `
-                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${record.room}</td>
-                <td class="px-6 py-4">${formatDate(record.date)}</td>
-                <td class="px-6 py-4"><span class="px-2 py-1 font-semibold leading-tight rounded-full ${record.service === 'Vệ sinh' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">${record.service}</span></td>
-                <td class="px-6 py-4">${formatCurrency(record.cost)}</td>
-                <td class="px-6 py-4">${record.notes || 'N/A'}</td>
-                <td class="px-6 py-4"><button class="text-indigo-500 hover:text-indigo-700 edit-btn" data-id="${record.id}" aria-label="Sửa"><i class="fas fa-pencil-alt"></i></button></td>
+                <td class="px-2 sm:px-4 py-3 font-medium text-gray-900 whitespace-nowrap">${record.room}</td>
+                <td class="px-2 sm:px-4 py-3">${formatDate(record.date)}</td>
+                <td class="px-2 sm:px-4 py-3"><span class="px-2 py-1 text-xs font-semibold leading-tight rounded-full ${record.service === 'Vệ sinh' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">${record.service}</span></td>
+                <td class="px-2 sm:px-4 py-3"><button class="text-indigo-500 hover:text-indigo-700 edit-btn" data-id="${record.id}" aria-label="Sửa"><i class="fas fa-pencil-alt"></i></button></td>
             `;
             logBody.appendChild(row);
         });
@@ -458,9 +473,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = document.createElement('tr');
             row.className = 'bg-white border-b table-row';
             row.innerHTML = `
-                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${room}</td>
-                <td class="px-6 py-4 text-center text-lg font-bold text-blue-600">${stats.cleaning}</td>
-                <td class="px-6 py-4 text-center text-lg font-bold text-yellow-600">${stats.repair}</td>
+                <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">${room}</td>
+                <td class="px-4 py-3 text-center text-lg font-bold text-blue-600">${stats.cleaning}</td>
+                <td class="px-4 py-3 text-center text-lg font-bold text-yellow-600">${stats.repair}</td>
             `;
             roomStatsBody.appendChild(row);
         });
@@ -534,18 +549,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeReportModal = () => reportModal.classList.add('hidden');
 
     const openExportMonthModal = () => {
-        // Populate years
         const years = [...new Set(maintenanceRecords.map(r => new Date(r.date).getFullYear()))].sort((a,b) => b-a);
         exportSelectYear.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
-        
-        // Populate months
         exportSelectMonth.innerHTML = Array.from({length: 12}, (_, i) => `<option value="${i}">${i + 1}</option>`).join('');
-        
-        // Set default to current month/year
         const now = new Date();
         exportSelectMonth.value = now.getMonth();
         exportSelectYear.value = now.getFullYear();
-
         exportMonthModal.classList.remove('hidden');
     };
 
@@ -579,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         recordsToExport.sort((a,b) => new Date(a.date) - new Date(b.date));
         recordsToExport.forEach(record => {
-            const row = [formatDate(record.date), record.room, record.service, record.cost, `"${record.notes.replace(/"/g, '""')}"`].join(",");
+            const row = [formatDate(record.date), record.room, record.service, record.cost, `"${(record.notes || '').replace(/"/g, '""')}"`].join(",");
             csvContent += row + "\r\n";
         });
         
@@ -593,6 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- EVENT LISTENERS ---
+    
     prevYearBtn.addEventListener('click', () => { displayedScheduleYear--; renderMonthlySchedule(); });
     nextYearBtn.addEventListener('click', () => { displayedScheduleYear++; renderMonthlySchedule(); });
 
@@ -620,54 +630,56 @@ document.addEventListener('DOMContentLoaded', () => {
         if (editButton) openRecordModal(editButton.dataset.id);
     });
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        maintenanceRecords.push({
-            id: Date.now().toString(),
+        const newRecord = {
             room: document.getElementById('room-number').value,
             date: document.getElementById('maintenance-date').value,
             service: document.getElementById('service-type').value,
             cost: document.getElementById('cost').value.replace(/[^0-9]/g, ''),
             notes: document.getElementById('notes').value.trim()
-        });
-        saveToLocalStorage();
-        displayedLogDate = new Date(document.getElementById('maintenance-date').value.replace(/-/g, '/'));
-        renderAll();
-        form.reset();
-        flatpickr("#maintenance-date").setDate(new Date());
+        };
+        try {
+            await addDoc(recordsCollection, newRecord);
+            displayedLogDate = new Date(newRecord.date.replace(/-/g, '/'));
+            form.reset();
+            flatpickr("#maintenance-date").setDate(new Date());
+        } catch (error) {
+            console.error("Lỗi khi thêm dữ liệu:", error);
+            alert("Đã xảy ra lỗi khi lưu. Vui lòng thử lại.");
+        }
     });
 
-    saveEditBtn.addEventListener('click', () => {
+    saveEditBtn.addEventListener('click', async () => {
         if (!activeRecordId) return;
-        const recordIndex = maintenanceRecords.findIndex(r => r.id === activeRecordId);
-        if (recordIndex === -1) return;
-        maintenanceRecords[recordIndex] = {
-            ...maintenanceRecords[recordIndex],
+        const recordRef = doc(db, recordsCollection.path, activeRecordId);
+        const updatedData = {
             room: document.getElementById('edit-room-number').value,
             date: document.getElementById('edit-maintenance-date').value,
             service: document.getElementById('edit-service-type').value,
             cost: document.getElementById('edit-cost').value.replace(/[^0-9]/g, ''),
             notes: document.getElementById('edit-notes').value.trim()
         };
-        saveToLocalStorage();
-        displayedLogDate = new Date(document.getElementById('edit-maintenance-date').value.replace(/-/g, '/'));
-        renderAll();
-        closeRecordModal();
-        if (!monthDetailsModal.classList.contains('hidden')) {
-             const [_, month, year] = monthDetailsTitle.textContent.match(/(\d+)\/(\d+)/);
-             openMonthDetailsModal(month - 1, year);
+        try {
+            await updateDoc(recordRef, updatedData);
+            displayedLogDate = new Date(updatedData.date.replace(/-/g, '/'));
+            closeRecordModal();
+        } catch (error) {
+            console.error("Lỗi khi cập nhật:", error);
+            alert("Đã xảy ra lỗi khi cập nhật. Vui lòng thử lại.");
         }
     });
 
-    deleteRecordBtn.addEventListener('click', () => {
+    deleteRecordBtn.addEventListener('click', async () => {
         if (!activeRecordId) return;
-        maintenanceRecords = maintenanceRecords.filter(r => r.id !== activeRecordId);
-        saveToLocalStorage();
-        renderAll();
-        closeRecordModal();
-        if (!monthDetailsModal.classList.contains('hidden')) {
-             const [_, month, year] = monthDetailsTitle.textContent.match(/(\d+)\/(\d+)/);
-             openMonthDetailsModal(month - 1, year);
+        if (confirm("Bạn có chắc chắn muốn xóa mục này?")) {
+             try {
+                await deleteDoc(doc(db, recordsCollection.path, activeRecordId));
+                closeRecordModal();
+            } catch (error) {
+                console.error("Lỗi khi xóa:", error);
+                alert("Đã xảy ra lỗi khi xóa. Vui lòng thử lại.");
+            }
         }
     });
 
@@ -677,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Không có dữ liệu để xuất.");
             return;
         }
-        const dataString = JSON.stringify(maintenanceRecords, null, 2);
+        const dataString = JSON.stringify(maintenanceRecords.map(({id, ...rest}) => rest), null, 2); // Export without firebase ID
         const blob = new Blob([dataString], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -709,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const importedData = JSON.parse(e.target.result);
                 if (!Array.isArray(importedData)) throw new Error("Tệp không chứa dữ liệu mảng (array).");
-                if (importedData.length > 0 && (!importedData[0].id || !importedData[0].date)) {
+                if (importedData.length > 0 && (!importedData[0].date || !importedData[0].room)) {
                      throw new Error("Dữ liệu trong tệp không đúng định dạng.");
                 }
                 dataToImport = importedData;
@@ -730,13 +742,24 @@ document.addEventListener('DOMContentLoaded', () => {
         dataToImport = null;
     });
 
-    confirmImportBtn.addEventListener('click', () => {
+    confirmImportBtn.addEventListener('click', async () => {
         if (dataToImport) {
-            maintenanceRecords = dataToImport;
-            saveToLocalStorage();
-            renderAll();
-            importConfirmModal.classList.add('hidden');
-            dataToImport = null;
+            try {
+                 // Clear existing data (optional, but good for a clean restore)
+                 for (const record of maintenanceRecords) {
+                     await deleteDoc(doc(db, recordsCollection.path, record.id));
+                 }
+                 // Add new data
+                 for (const record of dataToImport) {
+                     await addDoc(recordsCollection, record);
+                 }
+                 alert("Dữ liệu đã được phục hồi thành công!");
+            } catch (error) {
+                 alert("Lỗi khi phục hồi dữ liệu: " + error.message);
+            } finally {
+                 importConfirmModal.classList.add('hidden');
+                 dataToImport = null;
+            }
         }
     });
 
@@ -749,8 +772,40 @@ document.addEventListener('DOMContentLoaded', () => {
     [costInput, document.getElementById('edit-cost')].forEach(input => input.addEventListener('input', () => input.value = input.value.replace(/[^0-9]/g, '')));
     
     // --- INITIALIZATION ---
-    flatpickr("#maintenance-date", { locale: "vn", altInput: true, altFormat: "d/m/Y", dateFormat: "Y-m-d", defaultDate: "today" });
-    renderAll();
+    async function main() {
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+        
+        try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+            
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            recordsCollection = collection(db, `artifacts/${appId}/public/data/records`);
+
+            onSnapshot(recordsCollection, (snapshot) => {
+                maintenanceRecords = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAll();
+                loadingOverlay.classList.add('hidden');
+            }, (error) => {
+                console.error("Lỗi khi lắng nghe dữ liệu:", error);
+                loadingOverlay.innerHTML = '<p class="text-red-600">Không thể tải dữ liệu. Vui lòng thử lại.</p>';
+            });
+
+        } catch (error) {
+            console.error("Lỗi đăng nhập Firebase:", error);
+            loadingOverlay.innerHTML = '<p class="text-red-600">Lỗi kết nối tới cơ sở dữ liệu. Vui lòng làm mới trang.</p>';
+        }
+
+        flatpickr("#maintenance-date", { locale: "vn", altInput: true, altFormat: "d/m/Y", dateFormat: "Y-m-d", defaultDate: "today" });
+    }
+
+    main();
 });
 </script>
 
