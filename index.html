@@ -790,7 +790,6 @@
     
     // --- INITIALIZATION ---
     async function main() {
-        const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         db = getFirestore(app);
         auth = getAuth(app);
