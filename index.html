@@ -304,9 +304,10 @@
 
 
 <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+    // 1. Import đầy đủ các hàm cần thiết từ Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
     // DOM Elements
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -765,7 +766,7 @@
     // Modal listeners
     closeMonthDetailsBtn.addEventListener('click', closeMonthDetailsModal);
     cancelEditBtn.addEventListener('click', closeRecordModal);
-    openReportBtn.addEventListener('click', openReportModal);
+    openReportBtn.addEventListener('click', openReportBtn);
     closeReportBtn.addEventListener('click', closeReportModal);
     
     [costInput, document.getElementById('edit-cost')].forEach(input => input.addEventListener('input', () => input.value = input.value.replace(/[^0-9]/g, '')));
@@ -811,7 +812,6 @@
     }
 
     main();
-});
 </script>
 
 </body>
